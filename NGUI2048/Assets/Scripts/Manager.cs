@@ -14,12 +14,18 @@ public class Manager : MonoBehaviour
     public List<Number> isMovingNum = new List<Number>();  //正在移动中的Num
     public bool hasMove = false;                           //是否有数字发生了移动
 
-    public GameObject exitMessage;
+    public GameObject exitMessage;                         //退出提示语
 
+    public int level_score = 0;                            //此次关卡分数
+    public UILabel Now_Score;                              //当前关卡显示
+    public UILabel Hight_Score;                            //最高分数
+
+    public UISprite UIFinsh;                                //游戏结束页面
 
     void Awake()
     {
         _isnstance = this;
+        UIFinsh.gameObject.SetActive(false);
     }
     // Use this for initialization
     void Start()
@@ -36,51 +42,53 @@ public class Manager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             //若没有，就生成提示，若有则退出游戏（1s内点击2次）
-            if (exitMessage == null)  
+            if (exitMessage == null)
             {
                 exitMessage = Instantiate(exitMessage) as GameObject;
                 StartCoroutine("ResetQuitMessage");
             }
             else
             {
-                Application.Quit();
+                SceneManager.LoadScene("Scene/SartUI");
             }
         }
 
         //触屏，，，
         //有触摸点，且滑动
-        if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
+        if (isMovingNum.Count == 0)
         {
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
+            {
             int dieX = 0;
             int dieY = 0;
             //获取滑动的距离
             Vector2 touchDelPos = Input.GetTouch(0).deltaPosition;
-            if(Mathf.Abs(touchDelPos.x)> Mathf.Abs(touchDelPos.y))
+            if (Mathf.Abs(touchDelPos.x) > Mathf.Abs(touchDelPos.y))
             {
                 //滑动距离
-                if (Mathf.Abs(touchDelPos.x) > 10)
+                if (touchDelPos.x > 10)
                 {
                     dieX = 1;
-                }
-                else if(Mathf.Abs(touchDelPos.x) < -10)
+                } else
+                if (touchDelPos.x < -10)
                 {
                     dieX = -1;
                 }
             }
             else
             {
-                if (Mathf.Abs(touchDelPos.y) > 10)
+                if (touchDelPos.y > 10)
                 {
                     dieY = 1;
                 }
-                else if (Mathf.Abs(touchDelPos.y) < -10)
+                else if (touchDelPos.y < -10)
                 {
                     dieY = -1;
                 }
             }
             MoveNum(dieX, dieY);
         }
-
+    }
 
         //PC  端测试
         if (isMovingNum.Count == 0)
@@ -125,6 +133,11 @@ public class Manager : MonoBehaviour
                 }
             }
         }
+
+        //更新分数显示
+        Now_Score.text = level_score.ToString();
+        Hight_Score.text = PlayerPrefs.GetInt("HightScroe").ToString();
+
 
     }
 
@@ -220,8 +233,9 @@ public class Manager : MonoBehaviour
     public void Restart()
     {
         //Application.LoadLevel("scene/HaoHua2048");
-        SceneManager.LoadScene("scene/HaoHua2048");
+        SceneManager.LoadScene("Scene/HaoHua2048");
     }
+
     /// <summary>
     /// 判断游戏是否结束
     /// </summary>
@@ -250,9 +264,9 @@ public class Manager : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 4; i++)
         {
-            for (int j = 0; j < 4; j++)
+            for (int j = 0; j < 3; j++)
             {
                 if (numbers[i, j].value == numbers[i, j + 1].value)
                 {

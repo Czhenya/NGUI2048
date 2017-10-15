@@ -31,9 +31,14 @@ public class Number : MonoBehaviour
         transform.localPosition = new Vector3(-290 + posX * 200, -280 + posY * 200, 0);
         Manager._isnstance.numbers[posX, posY] = this;   //存放数字本身到数组中，表示此位置有数字不能生成新的数字
 
+        //游戏结束的UI显示，以及分数赋值
         if (Manager._isnstance.isDead())
         {
-            Debug.Log("TODO 游戏结束");
+            Manager._isnstance.UIFinsh.gameObject.SetActive(true);
+            Manager._isnstance.UIFinsh.gameObject.transform.Find("now_score").GetComponent<UILabel>().text =
+            Manager._isnstance.level_score.ToString();
+            Manager._isnstance.UIFinsh.gameObject.transform.Find("hight_score").GetComponent<UILabel>().text =
+            PlayerPrefs.GetInt("HightScroe").ToString();
         }
         
         //生成时直接生成在目标位置
@@ -239,10 +244,16 @@ public class Number : MonoBehaviour
             Destroy(this.gameObject);
             Manager._isnstance.numbers[posX, posY].GetComponent<UISprite>().spriteName =
                  Manager._isnstance.numbers[posX, posY].value.ToString();
-            if (Manager._isnstance.numbers[posX, posY].value == 2048)
+            //若分数增加，比上次的多，就赋值
+            if (Manager._isnstance.numbers[posX, posY].value > Manager._isnstance.level_score)
             {
-                //TODO   达到2048  最高分
-                Debug.Log("最高分");
+                Manager._isnstance.level_score = Manager._isnstance.numbers[posX, posY].value;
+            }
+            //比最高分高就赋值
+            if (Manager._isnstance.numbers[posX, posY].value > PlayerPrefs.GetInt("HightScroe"))
+            {
+                //Debug.Log("最高分");
+                PlayerPrefs.SetInt("HightScroe", Manager._isnstance.numbers[posX, posY].value);
             }
         }
         Manager._isnstance.isMovingNum.Remove(this);
